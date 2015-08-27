@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A placeholder fragment containing a simple view.
+ * Created by jtoscano on 27/08/2015.
  */
 public class FragmentoCiudades extends Fragment {
 
@@ -45,13 +45,7 @@ public class FragmentoCiudades extends Fragment {
 
     public FragmentoCiudades() {
     }
-/**
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
 
-        super.onCreate(savedInstanceState);
-    }
-**/
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -72,9 +66,9 @@ public class FragmentoCiudades extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String posicionCiudad = CiudadesAdaptador.getItem(position);
-                String idPosicion=arrayId.get(position);
+                String idPosicion = arrayId.get(position);
                 Intent intent = new Intent(getActivity(), DetalleCiudades.class)
-                        .putExtra(Intent.EXTRA_TEXT, posicionCiudad).putExtra("posicion",idPosicion);
+                        .putExtra(Intent.EXTRA_TEXT, posicionCiudad).putExtra("posicion", idPosicion);
                 startActivity(intent);
 
             }
