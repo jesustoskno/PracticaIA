@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:id="@+id/lista_ciudades_textview"
     android:gravity="center_vertical"
-    android:minHeight="?android:attr/listPreferredItemHeight">
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:textColor="#c7c7c7">
 
 </TextView>

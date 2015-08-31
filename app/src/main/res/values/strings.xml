@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">PracticaIA</string>
+    <string name="app_name">Practica IA Interactive (JesusToscano</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Opciones</string>
     <string name="actualizar">Actualizar</string>
-    <string name="titulo_detalleciudades">DetalleCiudades</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="titulo_detalleciudades">Listado De Complejos</string>
+    <string name="title_activity_maps">Mapa</string>
 </resources>
