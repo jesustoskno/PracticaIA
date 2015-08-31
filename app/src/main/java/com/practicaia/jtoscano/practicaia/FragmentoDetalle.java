@@ -71,6 +71,9 @@ public class FragmentoDetalle extends Fragment {
                         arNombre
                 );
 
+        FetchDetalles fetdet = new FetchDetalles();
+        fetdet.execute();
+
         View rootView = inflater.inflate(R.layout.fragmento_detalleciudades, container, false);
         ListView listView = (ListView) rootView.findViewById(R.id.listview_detalle);
         listView.setAdapter(detalleAdaptador);
@@ -80,9 +83,19 @@ public class FragmentoDetalle extends Fragment {
 
                 String latitud = arLatitud.get(position);
                 String longitud = arLongitud.get(position);
+                String nombre = arNombre.get(position);
+                String telefono = arTelefono.get(position);
+                String direccion = arDireccion.get(position);
+                String url = arUrl.get(position);
 
-                String coord = "http://maps.google.com/maps?q=" +latitud+","+longitud;
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(coord));
+
+                Intent intent = new Intent(getActivity(), MapsActivity.class)
+                        .putExtra("latitud", latitud)
+                        .putExtra("longitud", longitud)
+                        .putExtra("nombre", nombre)
+                        .putExtra("telefono", telefono)
+                        .putExtra("direccion", direccion)
+                        .putExtra("url", url);
                 startActivity(intent);
 
             }
@@ -91,15 +104,7 @@ public class FragmentoDetalle extends Fragment {
         return rootView;
     }
 
-    public void onResume(){
-        super.onStart();
-        FetchDetalles fetdet = new FetchDetalles();
-        fetdet.execute();
-    }
-
     public class FetchDetalles extends AsyncTask<String, Void, String[]> {
-
-
 
         private String[] obtenerDetallesJson(String detalleJsonStr)
                 throws JSONException {
