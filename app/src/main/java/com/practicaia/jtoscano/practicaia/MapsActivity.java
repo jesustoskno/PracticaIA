@@ -97,8 +97,8 @@ public class MapsActivity extends FragmentActivity {
         mMap.addMarker(new MarkerOptions()
                 .position(marcador)
                 .title(Nombre)
-                .snippet(Telefono+"\n"+Direccion+"\n"+Url)
+                .snippet(Direccion +"\n" + Telefono + "\n" + Url)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_ubicacion)));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marcador, 15));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marcador, 16));
     }
 }
