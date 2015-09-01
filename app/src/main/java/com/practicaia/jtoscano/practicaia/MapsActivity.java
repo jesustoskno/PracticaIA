@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -122,6 +123,9 @@ public class MapsActivity extends FragmentActivity {
                 LinearLayout info = new LinearLayout(MapsActivity.this);
                 info.setOrientation(LinearLayout.VERTICAL);
 
+                ImageView markerIcon = new ImageView(MapsActivity.this);
+                markerIcon.setImageResource(R.drawable.icono_cinepolis);
+
                 TextView title = new TextView(MapsActivity.this);
                 title.setTextColor(Color.BLACK);
                 title.setGravity(Gravity.CENTER);
@@ -132,6 +136,7 @@ public class MapsActivity extends FragmentActivity {
                 snippet.setTextColor(Color.GRAY);
                 snippet.setText(marker.getSnippet());
 
+                info.addView(markerIcon);
                 info.addView(title);
                 info.addView(snippet);
 
