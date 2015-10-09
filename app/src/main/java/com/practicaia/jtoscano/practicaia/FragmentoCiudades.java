@@ -1,50 +1,48 @@
 package com.practicaia.jtoscano.practicaia;
 
-import android.content.ContentValues;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.support.v4.app.Fragment;
+import android.database.Cursor;
 import android.os.Bundle;
-
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.practicaia.jtoscano.practicaia.data.Contrato;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by jtoscano on 27/08/2015.
  */
-public class FragmentoCiudades extends Fragment {
+public class FragmentoCiudades extends Fragment{
 
-    List<String> arrayEstado = new ArrayList<String>();
-    List<String> arrayId = new ArrayList<String>();
-    List<String> arrayIdEstado = new ArrayList<String>();
-    List<String> arrayIdPais = new ArrayList<String>();
-    List<String> arrayLatitud = new ArrayList<String>();
-    List<String> arrayLongitud = new ArrayList<String>();
-    List<String> arrayNombre = new ArrayList<String>();
-    List<String> arrayPais = new ArrayList<String>();
-    List<String> arrayUris = new ArrayList<String>();
+    private static final int CIUDADES_LOADER = 0;
 
+    private static final String[] CIUDADES_COLUMNAS = {
+            "1 _id",
+            Contrato.ContratoCiudades.ID,
+            Contrato.ContratoCiudades.ESTADO,
+            Contrato.ContratoCiudades.ID_ESTADO,
+            Contrato.ContratoCiudades.ID_PAIS,
+            Contrato.ContratoCiudades.LATITUD,
+            Contrato.ContratoCiudades.LONGITUD,
+            Contrato.ContratoCiudades.NOMBRE,
+            Contrato.ContratoCiudades.PAIS,
+    };
 
-    private ArrayAdapter<String> CiudadesAdaptador;
+    static final int CIUDADES_ID = 1;
+    static final int CIUDADES_NOMBRE = 7;
+
+    private CiudadesAdapter mCiudadesAdapter;
 
     public FragmentoCiudades() {
     }
@@ -53,164 +51,80 @@ public class FragmentoCiudades extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        mCiudadesAdapter = new CiudadesAdapter(getActivity(), null, 0);
 
-        CiudadesAdaptador =
-                new ArrayAdapter<String>(
-                        getActivity(),
-                        R.layout.lista_ciudades,
-                        R.id.lista_ciudades_textview,
-                        arrayNombre
-                );
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        View rootView =  inflater.inflate(R.layout.fragment_main, container, false);
         ListView listView = (ListView) rootView.findViewById(R.id.listview_ciudades);
-        listView.setAdapter(CiudadesAdaptador);
+        listView.setAdapter(mCiudadesAdapter);
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String posicionCiudad = CiudadesAdaptador.getItem(position);
-                String idPosicion = arrayId.get(position);
-                Intent intent = new Intent(getActivity(), DetalleCiudades.class)
-                        .putExtra(Intent.EXTRA_TEXT, posicionCiudad).putExtra("posicion", idPosicion);
-                startActivity(intent);
-
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+                String idCiudad = cursor.getString(cursor.getColumnIndex(Contrato.ContratoCiudades.ID));
+                if (cursor != null) {
+                    Intent intent = new Intent(getActivity(), DetalleCiudades.class)
+                            .putExtra("posicion", idCiudad);
+                    startActivity(intent);
+                }
             }
         });
 
-       return rootView;
+        return rootView;
     }
 
-    private void actualizarCiudades(){
-        FetchCiudades actualizar = new FetchCiudades();
-        actualizar.execute();
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        //mostrarDatos();
+        //updateCiudades();
+        super.onActivityCreated(savedInstanceState);
     }
 
-    public void onResume(){
-        super.onStart();
-        actualizarCiudades();
+    private void updateCiudades() {
+        FetchCiudades ciudadesTastk = new FetchCiudades(getActivity(), new FetchCiudades.mostrarListener() {
+            @Override
+            public void mostrar() {
+                Log.d("TAG", "termino de ejecucion");
+                mostrarDatos();
+            }
+        });
+        ciudadesTastk.execute();
     }
 
-    public class FetchCiudades extends AsyncTask<String, Void, String[]>{
+    @Override
+    public void onResume() {
+        super.onResume();
+        //loading
 
+        updateCiudades();
+    }
 
-        private String[] obtenerCiudadesJson(String ciudadesJsonStr)
-            throws JSONException {
+    private void mostrarDatos(){
 
-            final String ESTADO = "Estado";
-            final String ID = "Id";
-            final String IDESTADO = "IdEstado";
-            final String IDPAIS = "IdPais";
-            final String LATITUD = "Latitud";
-            final String LONGITUD = "Longitud";
-            final String NOMBRE = "Nombre";
-            final String PAIS = "Pais";
-            final String URIS = "Uris";
+        getLoaderManager().initLoader(CIUDADES_LOADER, null, new LoaderManager.LoaderCallbacks<Cursor>() {
+            @Override
+            public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+                String sortOrder = Contrato.ContratoCiudades.NOMBRE + " ASC";
 
-            JSONArray arregloJson = new JSONArray(ciudadesJsonStr);
-            String[] resultado = new String[arregloJson.length()];
-
-                for (int i=0 ; i<arregloJson.length(); i++){
-                    String estado;
-                    String id;
-                    String idestado;
-                    String idpais;
-                    String latitud;
-                    String longitud;
-                    String nombre;
-                    String pais;
-                    String uris;
-
-
-                    JSONObject objetoJson = arregloJson.getJSONObject(i);
-                    estado = objetoJson.getString(ESTADO);
-                    id = objetoJson.getString(ID);
-                    idestado = objetoJson.getString(IDESTADO);
-                    idpais = objetoJson.getString(IDPAIS);
-                    latitud = objetoJson.getString(LATITUD);
-                    longitud = objetoJson.getString(LONGITUD);
-                    nombre = objetoJson.getString(NOMBRE);
-                    pais = objetoJson.getString(PAIS);
-                    uris = objetoJson.getString(URIS);
-
-                    arrayEstado.add(estado);
-                    arrayId.add(id);
-                    arrayIdEstado.add(idestado);
-                    arrayIdPais.add(idpais);
-                    arrayLatitud.add(latitud);
-                    arrayLongitud.add(longitud);
-                    arrayNombre.add(nombre);
-                    arrayPais.add(pais);
-                    arrayUris.add(uris);
-                }
-
-            return resultado;
-
-        }
-
-        @Override
-        protected String[] doInBackground(String... params){
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-
-            String ciudadesJsonStr = null;
-
-            try {
-                URL url = new URL("http://api.cinepolis.com.mx/Consumo.svc/json/ObtenerCiudades");
-
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-
-                    buffer.append(line + "\n");
-                }
-
-                if (buffer.length() == 0) {
-
-                    return null;
-                }
-                ciudadesJsonStr = buffer.toString();
-
-            } catch (IOException e) {
-
-
-                return null;
-            } finally{
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-
-                    }
-                }
+                return new CursorLoader(getActivity(),
+                        Contrato.ContratoCiudades.CONTENT_URI,
+                        CIUDADES_COLUMNAS,
+                        null,
+                        null,
+                        sortOrder);
             }
-            try{
-                return obtenerCiudadesJson(ciudadesJsonStr);
-            }
-            catch(JSONException e){
 
-                e.printStackTrace();
+            @Override
+            public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+                mCiudadesAdapter.swapCursor(data);
+                mCiudadesAdapter.notifyDataSetChanged();
             }
-            return null;
-        }
 
-        @Override
-        protected void onPostExecute(String[] strings) {
-            super.onPostExecute(strings);
-            CiudadesAdaptador.notifyDataSetChanged();
-        }
+            @Override
+            public void onLoaderReset(Loader<Cursor> loader) {
+                mCiudadesAdapter.swapCursor(null);
+            }
+        });
     }
 }
