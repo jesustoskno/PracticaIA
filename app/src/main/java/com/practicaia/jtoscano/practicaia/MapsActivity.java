@@ -72,12 +72,12 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        String Latitud= new String();
-        String Longitud= new String();
-        String Nombre= new String();
-        String Telefono= new String();
-        String Direccion= new String();
-        String Url= new String();
+        String Latitud = new String();
+        String Longitud = new String();
+        String Nombre = new String();
+        String Telefono = new String();
+        String Direccion = new String();
+        String Url = new String();
 
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra("latitud")) {
@@ -101,7 +101,7 @@ public class MapsActivity extends FragmentActivity {
         Double latitud = Double.parseDouble(Latitud);
         Double longitud = Double.parseDouble(Longitud);
 
-        LatLng marcador= new LatLng(latitud, longitud);
+        LatLng marcador = new LatLng(latitud, longitud);
 
         mMap.addMarker(new MarkerOptions()
                 .position(marcador)
